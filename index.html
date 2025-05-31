@@ -39,28 +39,75 @@
     <script>
         const videoElement = document.getElementById('screenVideo');
         const startButton = document.getElementById('startCapture');
+        let pc = null; // PeerConnection
 
-        startButton.addEventListener('click', async () => {
+        async function startCaptureAndSend() {
             try {
                 const stream = await navigator.mediaDevices.getDisplayMedia({
                     video: {
-                        cursor: "always" // "always", "motion", or "never"
+                        cursor: "always"
                     },
-                    audio: false // Set to true to capture audio (if available and permitted)
+                    audio: false
                 });
                 videoElement.srcObject = stream;
 
-                // Optional: Stop capture when the stream ends (e.g., user clicks "Stop sharing")
+                // WebRTC connection setup
+                pc = new RTCPeerConnection({
+                    iceServers: [] // Add STUN/TURN servers if needed for NAT traversal
+                });
+
+                stream.getTracks().forEach(track => pc.addTrack(track, stream));
+
+                pc.onicecandidate = event => {
+                    if (event.candidate) {
+                        // In a real application, you would send this candidate to the server
+                        // For simplicity, we are not handling ICE candidates here extensively
+                        console.log("ICE candidate: ", event.candidate);
+                    }
+                };
+
+                pc.ontrack = (event) => {
+                    // This would be for receiving tracks from the server, not relevant here
+                    console.log("Track received from peer: ", event.track);
+                };
+
+                const offer = await pc.createOffer();
+                await pc.setLocalDescription(offer);
+
+                const response = await fetch('http://localhost:8080/offer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ sdp: offer.sdp, type: offer.type }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const answer = await response.json();
+                await pc.setRemoteDescription(new RTCSessionDescription(answer));
+
                 stream.getVideoTracks()[0].addEventListener('ended', () => {
                     console.log('Screen capture ended');
-                    // You can add any cleanup logic here
+                    if (pc) {
+                        pc.close();
+                        pc = null;
+                    }
                 });
 
             } catch (err) {
                 console.error("Error: " + err);
-                alert("Could not start screen capture. Please ensure you have granted permission and your browser supports this feature.");
+                alert("Could not start screen capture or connect to backend. Details: " + err.message);
+                if (pc) {
+                    pc.close();
+                    pc = null;
+                }
             }
-        });
+        }
+
+        startButton.addEventListener('click', startCaptureAndSend);
     </script>
 </body>
 </html> 
