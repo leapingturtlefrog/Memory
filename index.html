@@ -30,18 +30,20 @@
 </head>
 <body>
     <h1>Screen Capture App</h1>
-    <p>Click the button below to start capturing your screen.</p>
+    <p>Click the button below to start capturing your screen. Video frames will be sent to the AI.</p>
     <button id="startCapture">Start Screen Capture</button>
     <div id="videoContainer">
         <video id="screenVideo" autoplay playsinline></video>
     </div>
+    <canvas id="captureCanvas" style="display:none;"></canvas>
 
     <script>
         const videoElement = document.getElementById('screenVideo');
         const startButton = document.getElementById('startCapture');
-        let pc = null; // PeerConnection
+        const captureCanvas = document.getElementById('captureCanvas');
+        let videoStreamInterval;
 
-        async function startCaptureAndSend() {
+        startButton.addEventListener('click', async () => {
             try {
                 const stream = await navigator.mediaDevices.getDisplayMedia({
                     video: {
@@ -51,63 +53,106 @@
                 });
                 videoElement.srcObject = stream;
 
-                // WebRTC connection setup
-                pc = new RTCPeerConnection({
-                    iceServers: [] // Add STUN/TURN servers if needed for NAT traversal
-                });
-
-                stream.getTracks().forEach(track => pc.addTrack(track, stream));
-
-                pc.onicecandidate = event => {
-                    if (event.candidate) {
-                        // In a real application, you would send this candidate to the server
-                        // For simplicity, we are not handling ICE candidates here extensively
-                        console.log("ICE candidate: ", event.candidate);
-                    }
+                videoElement.onloadedmetadata = () => {
+                    const aspectRatio = videoElement.videoWidth / videoElement.videoHeight;
+                    captureCanvas.width = 320; // Smaller dimension for sending
+                    captureCanvas.height = Math.round(captureCanvas.width / aspectRatio);
+                    console.log(`Canvas dimensions set to: ${captureCanvas.width}x${captureCanvas.height}`);
                 };
 
-                pc.ontrack = (event) => {
-                    // This would be for receiving tracks from the server, not relevant here
-                    console.log("Track received from peer: ", event.track);
+                videoElement.onplay = () => {
+                    console.log("Video playback started. Attempting to send frames.");
+                    if (videoStreamInterval) clearInterval(videoStreamInterval);
+
+                    videoStreamInterval = setInterval(() => {
+                        if (window.aiSession && typeof window.aiSession.send === 'function') {
+                            const ctx = captureCanvas.getContext('2d');
+                            ctx.drawImage(videoElement, 0, 0, captureCanvas.width, captureCanvas.height);
+                            const base64ImageData = captureCanvas.toDataURL('image/jpeg', 0.7).split(',')[1];
+
+                            const payloadToSend = {
+                                parts: [{
+                                    inlineData: {
+                                        mimeType: "image/jpeg",
+                                        data: base64ImageData
+                                    }
+                                }]
+                            };
+
+                            window.aiSession.send(payloadToSend)
+                                .then(() => {
+                                    console.log("Sent video frame to AI.");
+                                })
+                                .catch(err => {
+                                    console.error("Error sending video frame:", err);
+                                    // Consider stopping interval on persistent errors
+                                });
+                        } else {
+                            // console.debug("AI session not ready or send method not available.");
+                        }
+                    }, 1000); // Send frame every 1 second
                 };
-
-                const offer = await pc.createOffer();
-                await pc.setLocalDescription(offer);
-
-                const response = await fetch('http://localhost:8080/offer', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ sdp: offer.sdp, type: offer.type }),
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const answer = await response.json();
-                await pc.setRemoteDescription(new RTCSessionDescription(answer));
 
                 stream.getVideoTracks()[0].addEventListener('ended', () => {
                     console.log('Screen capture ended');
-                    if (pc) {
-                        pc.close();
-                        pc = null;
-                    }
+                    if (videoStreamInterval) clearInterval(videoStreamInterval);
+                    // Optionally, you might want to inform the AI session or close it
+                    // if (window.aiSession) window.aiSession.close();
                 });
 
             } catch (err) {
-                console.error("Error: " + err);
-                alert("Could not start screen capture or connect to backend. Details: " + err.message);
-                if (pc) {
-                    pc.close();
-                    pc = null;
-                }
+                console.error("Error starting screen capture: " + err);
+                alert("Could not start screen capture. Please ensure you have granted permission and your browser supports this feature.");
             }
+        });
+    </script>
+    <script type="module">
+        import { GoogleGenAI, Modality } from 'https://esm.run/@google/genai';
+
+        window.aiSession = null; // Expose session to global scope
+
+        // IMPORTANT: Replace "GOOGLE_API_KEY" with your actual API key
+        const ai = new GoogleGenAI({ apiKey: "GOOGLE_API_KEY" }); 
+        const model = 'gemini-2.0-flash-live-001'; // Ensure this model supports live video input
+        const config = { responseModalities: [Modality.TEXT] };
+
+        async function main() {
+          try {
+            const session = await ai.live.connect({
+              model: model,
+              callbacks: {
+                onopen: function () {
+                  console.debug('AI session Opened');
+                },
+                onmessage: function (message) {
+                  console.debug('AI Message:', message);
+                  // Handle incoming messages from the AI if needed
+                  if (message.text) {
+                    console.log("AI Response Text:", message.text);
+                  }
+                },
+                onerror: function (e) {
+                  console.debug('AI Error:', e.message);
+                },
+                onclose: function (e) {
+                  console.debug('AI Close:', e.reason);
+                  window.aiSession = null; // Clear session on close
+                  if (videoStreamInterval) clearInterval(videoStreamInterval); // Stop sending frames
+                },
+              },
+              config: config,
+            });
+
+            window.aiSession = session;
+            console.log("AI session started. Ready for video frames when screen capture begins.");
+
+          } catch (error) {
+            console.error("Failed to initialize AI session:", error);
+            alert("Could not initialize AI session. Check console for details and ensure your API key and model are correct.");
+          }
         }
 
-        startButton.addEventListener('click', startCaptureAndSend);
+        main().catch(console.error);
     </script>
 </body>
 </html> 
