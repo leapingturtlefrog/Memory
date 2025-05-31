@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen Capture</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+        #videoContainer {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            width: 80%;
+            max-width: 640px;
+            background-color: #000;
+        }
+        video { display: block; width: 100%; }
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Screen Capture App</h1>
+    <p>Click the button below to start capturing your screen.</p>
+    <button id="startCapture">Start Screen Capture</button>
+    <div id="videoContainer">
+        <video id="screenVideo" autoplay playsinline></video>
+    </div>
+
+    <script>
+        const videoElement = document.getElementById('screenVideo');
+        const startButton = document.getElementById('startCapture');
+
+        startButton.addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getDisplayMedia({
+                    video: {
+                        cursor: "always" // "always", "motion", or "never"
+                    },
+                    audio: false // Set to true to capture audio (if available and permitted)
+                });
+                videoElement.srcObject = stream;
+
+                // Optional: Stop capture when the stream ends (e.g., user clicks "Stop sharing")
+                stream.getVideoTracks()[0].addEventListener('ended', () => {
+                    console.log('Screen capture ended');
+                    // You can add any cleanup logic here
+                });
+
+            } catch (err) {
+                console.error("Error: " + err);
+                alert("Could not start screen capture. Please ensure you have granted permission and your browser supports this feature.");
+            }
+        });
+    </script>
+</body>
+</html> 
