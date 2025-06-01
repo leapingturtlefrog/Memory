@@ -47,6 +47,10 @@ DESCRIPTIONS_DIR = "gemini_descriptions"  # Directory to save descriptions
 # Create timestamped filename for descriptions
 session_timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
 DESCRIPTIONS_FILE = os.path.join(DESCRIPTIONS_DIR, f"descriptions_{session_timestamp}.md")  # File to save descriptions
+DESCRIPTIONS_HTML_FILE = os.path.join(DESCRIPTIONS_DIR, f"descriptions_{session_timestamp}.html")  # HTML file to save descriptions
+
+# Store descriptions in memory for easy HTML generation
+descriptions_list = []
 
 # Create frames directory if it doesn't exist
 if SAVE_FRAMES and not os.path.exists(FRAMES_DIR):
@@ -58,15 +62,195 @@ if SAVE_DESCRIPTIONS and not os.path.exists(DESCRIPTIONS_DIR):
     os.makedirs(DESCRIPTIONS_DIR)
     logger.info(f"Created descriptions directory: {DESCRIPTIONS_DIR}")
 
-# Create/initialize descriptions file if enabled
-if SAVE_DESCRIPTIONS:
-    # Create file with header if it doesn't exist
-    if not os.path.exists(DESCRIPTIONS_FILE):
+# Helper function to save description to both markdown and HTML
+def save_description_to_files(description_text):
+    """Save description to both markdown and HTML files"""
+    if not SAVE_DESCRIPTIONS or not description_text:
+        return
+        
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    # Add to descriptions list
+    descriptions_list.append({
+        'text': description_text,
+        'timestamp': timestamp
+    })
+    
+    try:
+        # Write markdown file
         with open(DESCRIPTIONS_FILE, 'w', encoding='utf-8') as f:
             f.write(f"# Gemini Screen Descriptions Log\n\n")
             f.write(f"**Started:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
             f.write(f"---\n\n")
-        logger.info(f"Created descriptions file: {DESCRIPTIONS_FILE}")
+            
+            for desc in descriptions_list:
+                f.write(f"**{desc['timestamp']}:** {desc['text']}\n\n")
+        
+        # Write HTML file
+        descriptions_html = ""
+        for desc in descriptions_list:
+            descriptions_html += f'''            <div class="description-item">
+                <div class="description-time">
+                    <span class="live-indicator"></span>
+                    {desc['timestamp']}
+                </div>
+                <div class="description-text">{desc['text']}</div>
+            </div>
+'''
+        
+        html_content = f'''<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Screen Descriptions - {session_timestamp}</title>
+    <style>
+        body {{
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }}
+        .container {{
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }}
+        .header {{
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }}
+        .header h1 {{
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }}
+        .header .timestamp {{
+            margin: 10px 0 0 0;
+            font-size: 1.1em;
+            opacity: 0.9;
+        }}
+        .content {{
+            padding: 30px;
+        }}
+        .description-item {{
+            background: #f8f9fa;
+            border-left: 4px solid #2a5298;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 0 10px 10px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }}
+        .description-item:hover {{
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }}
+        .description-time {{
+            color: #6c757d;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }}
+        .description-text {{
+            font-size: 1.1em;
+            color: #2c3e50;
+            line-height: 1.7;
+        }}
+        .stats {{
+            background: #e9ecef;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            text-align: center;
+        }}
+        .stats-item {{
+            display: inline-block;
+            margin: 0 20px;
+            text-align: center;
+        }}
+        .stats-number {{
+            font-size: 2em;
+            font-weight: bold;
+            color: #2a5298;
+            display: block;
+        }}
+        .stats-label {{
+            color: #6c757d;
+            font-size: 0.9em;
+        }}
+        .footer {{
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #6c757d;
+            border-top: 1px solid #dee2e6;
+        }}
+        .live-indicator {{
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #28a745;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }}
+        @keyframes pulse {{
+            0% {{ opacity: 1; }}
+            50% {{ opacity: 0.5; }}
+            100% {{ opacity: 1; }}
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><span class="live-indicator"></span>Gemini Screen Descriptions</h1>
+            <div class="timestamp">Session started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</div>
+        </div>
+        
+        <div class="content">
+            <div class="stats">
+                <div class="stats-item">
+                    <span class="stats-number">{len(descriptions_list)}</span>
+                    <span class="stats-label">Descriptions</span>
+                </div>
+                <div class="stats-item">
+                    <span class="stats-number">Live</span>
+                    <span class="stats-label">Status</span>
+                </div>
+            </div>
+            
+            <div id="descriptions-container">
+{descriptions_html}            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Generated by Gemini Screen Capture System | Last updated: {timestamp}</p>
+        </div>
+    </div>
+</body>
+</html>'''
+
+        with open(DESCRIPTIONS_HTML_FILE, 'w', encoding='utf-8') as f:
+            f.write(html_content)
+        
+        logger.debug(f"Saved description to both files: {DESCRIPTIONS_FILE} and {DESCRIPTIONS_HTML_FILE}")
+        
+    except Exception as e:
+        logger.error(f"Error writing description to files: {e}")
+
+# Create/initialize description files if enabled
+if SAVE_DESCRIPTIONS:
+    logger.info(f"Descriptions will be saved to: {DESCRIPTIONS_FILE} and {DESCRIPTIONS_HTML_FILE}")
 
 # --- Helper function for screen capture ---
 def _capture_screen_frame():
@@ -164,12 +348,9 @@ async def receive_gemini_responses_loop(session, app: web.Application):
                             # Save description to file if enabled
                             if SAVE_DESCRIPTIONS and response_text:
                                 try:
-                                    with open(DESCRIPTIONS_FILE, 'a', encoding='utf-8') as f:
-                                        f.write(f"{response_text} ")
-                                        f.flush()  # Ensure immediate write
-                                    logger.debug(f"Saved description to file: {DESCRIPTIONS_FILE}")
+                                    save_description_to_files(response_text)
                                 except Exception as e:
-                                    logger.error(f"Error writing description to file: {e}")
+                                    logger.error(f"Error writing description to files: {e}")
                         
                         # If no direct text, try to get text from parts
                         elif hasattr(response, 'parts') and response.parts:
@@ -184,12 +365,9 @@ async def receive_gemini_responses_loop(session, app: web.Application):
                                 # Save description to file if enabled
                                 if SAVE_DESCRIPTIONS and response_text:
                                     try:
-                                        with open(DESCRIPTIONS_FILE, 'a', encoding='utf-8') as f:
-                                            f.write(f"{response_text} ")
-                                            f.flush()  # Ensure immediate write
-                                        logger.debug(f"Saved description to file: {DESCRIPTIONS_FILE}")
+                                        save_description_to_files(response_text)
                                     except Exception as e:
-                                        logger.error(f"Error writing description to file: {e}")
+                                        logger.error(f"Error writing description to files: {e}")
                         
                         # Log if we didn't find any text
                         if not response_text:
