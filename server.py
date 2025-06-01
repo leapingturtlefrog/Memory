@@ -552,11 +552,30 @@ async def on_shutdown(app):
     pcs.clear()
 
 if __name__ == "__main__":
-    # Configure Loguru
+    # Configure Loguru with detailed timestamps
     logger.remove() # Removes the default handler
-    # logger.add(sys.stderr, level="INFO") # Adds a new handler with INFO level
-    # For more detailed Gemini streaming logs, set to "DEBUG"
-    logger.add(sys.stderr, level="INFO")
+    
+    # Add a new handler with detailed timestamp format
+    logger.add(
+        sys.stderr, 
+        level="INFO",
+        format="<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
+        colorize=True
+    )
+    
+    # Also add a file logger for persistent logs
+    log_filename = f"server_logs_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+    logger.add(
+        log_filename,
+        level="DEBUG", 
+        format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {name}:{function}:{line} - {message}",
+        rotation="10 MB",  # Rotate when file reaches 10MB
+        retention="7 days",  # Keep logs for 7 days
+        compression="zip"  # Compress old logs
+    )
+    
+    logger.info(f"Server starting up at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    logger.info(f"Logs will be saved to: {log_filename}")
 
     app = web.Application()
     

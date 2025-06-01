@@ -1,0 +1,271 @@
+***************************************************************************
+              ############################
+              # Package would be ignored #
+              ############################
+              Python recognizes 'pandas.io.formats.templates' as an importable package[^1],
+              but it is absent from setuptools' `packages` configuration.
+
+              This leads to an ambiguous overall configuration. If you want to distribute this
+              package, please make sure that 'pandas.io.formats.templates' is explicitly added
+              to the `packages` configuration field.
+
+              Alternatively, you can also rely on setuptools' discovery methods
+              (for example by using `find_namespace_packages(...)`/`find_namespace:`
+              instead of `find_packages(...)`/`find:`).
+
+              You can read more about "package discovery" on setuptools documentation page:
+
+              - https://setuptools.pypa.io/en/latest/userguide/package_discovery.html
+
+              If you don't want 'pandas.io.formats.templates' to be distributed and are
+              already explicitly excluding 'pandas.io.formats.templates' via
+              `find_namespace_packages(...)/find_namespace` or `find_packages(...)/find`,
+              you can try to use `exclude_package_data`, or `include-package-data=False` in
+              combination with a more fine grained `package-data` configuration.
+
+              You can read more about "package data files" on setuptools documentation page:
+
+              - https://setuptools.pypa.io/en/latest/userguide/datafiles.html
+
+
+              [^1]: For Python, any directory (with suitable naming) can be imported,
+                    even if it does not contain any `.py` files.
+                    On the other hand, currently there is no concept of package data
+                    directory, all directories are treated like packages.
+              ********************************************************************************
+
+      !!
+        check.warn(importable)
+      C:\Users\alexa\AppData\Local\uv\cache\builds-v0\.tmp5HmD0h\Lib\site-packages\setuptools\command\build_py.py:212: _Warning:        
+      Package 'pandas.tests.io.data' is absent from the `packages` configuration.
+      !!
+
+              ********************************************************************************
+              ############################
+              # Package would be ignored #
+              ############################
+              Python recognizes 'pandas.tests.io.data' as an importable package[^1],
+              but it is absent from setuptools' `packages` configuration.
+
+              This leads to an ambiguous overall configuration. If you want to distribute this
+              package, please make sure that 'pandas.tests.io.data' is explicitly added
+              to the `packages` configuration field.
+
+              Alternatively, you can also rely on setuptools' discovery methods
+              (for example by using `find_namespace_packages(...)`/`find_namespace:`
+              instead of `find_packages(...)`/`find:`).
+
+              You can read more about "package discovery" on setuptools documentation page:
+
+              - https://setuptools.pypa.io/en/latest/userguide/package_discovery.html
+
+              If you don't want 'pandas.tests.io.data' to be distributed and are
+              already explicitly excluding 'pandas.tests.io.data' via
+              `find_namespace_packages(...)/find_namespace` or `find_packages(...)/find`,
+              you can try to use `exclude_package_data`, or `include-package-data=False` in
+              combination with a more fine grained `package-data` configuration.
+
+              You can read more about "package data files" on setuptools documentation page:
+
+              - https://setuptools.pypa.io/en/latest/userguide/datafiles.html
+
+
+              [^1]: For Python, any directory (with suitable naming) can be imported,
+                    even if it does not contain any `.py` files.
+                    On the other hand, currently there is no concept of package data
+                    directory, all directories are treated like packages.
+              ********************************************************************************
+
+      !!
+        check.warn(importable)
+      C:\Users\alexa\AppData\Local\uv\cache\builds-v0\.tmp5HmD0h\Lib\site-packages\setuptools\command\build_py.py:212: _Warning:        
+      Package 'pandas.tests.io.data.fixed_width' is absent from the `packages` configuration.
+      !!
+
+              ********************************************************************************
+              ############################
+              # Package would be ignored #
+              ############################
+              Python recognizes 'pandas.tests.io.data.fixed_width' as an importable package[^1],
+              but it is absent from setuptools' `packages` configuration.
+
+              This leads to an ambiguous overall configuration. If you want to distribute this
+              package, please make sure that 'pandas.tests.io.data.fixed_width' is explicitly added
+              to the `packages` configuration field.
+
+              Alternatively, you can also rely on setuptools' discovery methods
+              (for example by using `find_namespace_packages(...)`/`find_namespace:`
+              instead of `find_packages(...)`/`find:`).
+
+              You can read more about "package discovery" on setuptools documentation page:
+
+              - https://setuptools.pypa.io/en/latest/userguide/package_discovery.html
+
+              If you don't want 'pandas.tests.io.data.fixed_width' to be distributed and are
+              already explicitly excluding 'pandas.tests.io.data.fixed_width' via
+              `find_namespace_packages(...)/find_namespace` or `find_packages(...)/find`,
+              you can try to use `exclude_package_data`, or `include-package-data=False` in
+              combination with a more fine grained `package-data` configuration.
+
+              You can read more about "package data files" on setuptools documentation page:
+
+              - https://setuptools.pypa.io/en/latest/userguide/datafiles.html
+
+
+              [^1]: For Python, any directory (with suitable naming) can be imported,
+                    even if it does not contain any `.py` files.
+                    On the other hand, currently there is no concept of package data
+                    directory, all directories are treated like packages.
+              ********************************************************************************
+
+      !!
+        check.warn(importable)
+      C:\Users\alexa\AppData\Local\uv\cache\builds-v0\.tmp5HmD0h\Lib\site-packages\setuptools\command\build_py.py:212: _Warning:        
+      Package 'pandas.tests.io.data.legacy_pickle' is absent from the `packages` configuration.
+      !!
+
+              ********************************************************************************
+              ############################
+              # Package would be ignored #
+              ############################
+              Python recognizes 'pandas.tests.io.data.legacy_pickle' as an importable package[^1],
+              but it is absent from setuptools' `packages` configuration.
+
+              This leads to an ambiguous overall configuration. If you want to distribute this
+              package, please make sure that 'pandas.tests.io.data.legacy_pickle' is explicitly added
+              to the `packages` configuration field.
+
+              Alternatively, you can also rely on setuptools' discovery methods
+              (for example by using `find_namespace_packages(...)`/`find_namespace:`
+              instead of `find_packages(...)`/`find:`).
+
+              You can read more about "package discovery" on setuptools documentation page:
+
+              - https://setuptools.pypa.io/en/latest/userguide/package_discovery.html
+
+              If you don't want 'pandas.tests.io.data.legacy_pickle' to be distributed and are
+              already explicitly excluding 'pandas.tests.io.data.legacy_pickle' via
+              `find_namespace_packages(...)/find_namespace` or `find_packages(...)/find`,
+              you can try to use `exclude_package_data`, or `include-package-data=False` in
+              combination with a more fine grained `package-data` configuration.
+
+              You can read more about "package data files" on setuptools documentation page:
+
+              - https://setuptools.pypa.io/en/latest/userguide/datafiles.html
+
+
+              [^1]: For Python, any directory (with suitable naming) can be imported,
+                    even if it does not contain any `.py` files.
+                    On the other hand, currently there is no concept of package data
+                    directory, all directories are treated like packages.
+              ********************************************************************************
+
+      !!
+        check.warn(importable)
+      C:\Users\alexa\AppData\Local\uv\cache\builds-v0\.tmp5HmD0h\Lib\site-packages\setuptools\command\build_py.py:212: _Warning:        
+      Package 'pandas.tests.io.data.parquet' is absent from the `packages` configuration.
+      !!
+
+              ********************************************************************************
+              ############################
+              # Package would be ignored #
+              ############################
+              Python recognizes 'pandas.tests.io.data.parquet' as an importable package[^1],
+              but it is absent from setuptools' `packages` configuration.
+
+              This leads to an ambiguous overall configuration. If you want to distribute this
+              package, please make sure that 'pandas.tests.io.data.parquet' is explicitly added
+              to the `packages` configuration field.
+
+              Alternatively, you can also rely on setuptools' discovery methods
+              (for example by using `find_namespace_packages(...)`/`find_namespace:`
+              instead of `find_packages(...)`/`find:`).
+
+              You can read more about "package discovery" on setuptools documentation page:
+
+              - https://setuptools.pypa.io/en/latest/userguide/package_discovery.html
+
+              If you don't want 'pandas.tests.io.data.parquet' to be distributed and are
+              already explicitly excluding 'pandas.tests.io.data.parquet' via
+              `find_namespace_packages(...)/find_namespace` or `find_packages(...)/find`,
+              you can try to use `exclude_package_data`, or `include-package-data=False` in
+              combination with a more fine grained `package-data` configuration.
+
+              You can read more about "package data files" on setuptools documentation page:
+
+              - https://setuptools.pypa.io/en/latest/userguide/datafiles.html
+
+
+              [^1]: For Python, any directory (with suitable naming) can be imported,
+                    even if it does not contain any `.py` files.
+                    On the other hand, currently there is no concept of package data
+                    directory, all directories are treated like packages.
+              ********************************************************************************
+
+      !!
+        check.warn(importable)
+      C:\Users\alexa\AppData\Local\uv\cache\builds-v0\.tmp5HmD0h\Lib\site-packages\setuptools\command\build_py.py:212: _Warning:        
+      Package 'pandas.tests.io.data.pickle' is absent from the `packages` configuration.
+      !!
+
+              ********************************************************************************
+              ############################
+              # Package would be ignored #
+              ############################
+              Python recognizes 'pandas.tests.io.data.pickle' as an importable package[^1],
+              but it is absent from setuptools' `packages` configuration.
+
+              This leads to an ambiguous overall configuration. If you want to distribute this
+              package, please make sure that 'pandas.tests.io.data.pickle' is explicitly added
+              to the `packages` configuration field.
+
+              Alternatively, you can also rely on setuptools' discovery methods
+              (for example by using `find_namespace_packages(...)`/`find_namespace:`
+              instead of `find_packages(...)`/`find:`).
+
+              You can read more about "package discovery" on setuptools documentation page:
+
+              - https://setuptools.pypa.io/en/latest/userguide/package_discovery.html
+
+              If you don't want 'pandas.tests.io.data.pickle' to be distributed and are
+              already explicitly excluding 'pandas.tests.io.data.pickle' via
+              `find_namespace_packages(...)/find_namespace` or `find_packages(...)/find`,
+              you can try to use `exclude_package_data`, or `include-package-data=False` in
+              combination with a more fine grained `package-data` configuration.
+
+              You can read more about "package data files" on setuptools documentation page:
+
+              - https://setuptools.pypa.io/en/latest/userguide/datafiles.html
+
+
+              [^1]: For Python, any directory (with suitable naming) can be imported,
+                    even if it does not contain any `.py` files.
+                    On the other hand, currently there is no concept of package data
+                    directory, all directories are treated like packages.
+              ********************************************************************************
+
+      !!
+        check.warn(importable)
+      C:\Users\alexa\AppData\Local\uv\cache\builds-v0\.tmp5HmD0h\Lib\site-packages\setuptools\command\build_py.py:212: _Warning:        
+      Package 'pandas.tests.io.data.xml' is absent from the `packages` configuration.
+      !!
+
+              ********************************************************************************
+              ############################
+              # Package would be ignored #
+              ############################
+              Python recognizes 'pandas.tests.io.data.xml' as an importable package[^1],
+              but it is absent from setuptools' `packages` configuration.
+
+              This leads to an ambiguous overall configuration. If you want to distribute this
+              package, please make sure that 'pandas.tests.io.data.xml' is explicitly added
+              to the `packages` configuration field.
+
+      hint: This usually indicates a problem with the package or the build environment.
+  help: `pandas` (v1.5.3) was included because `paddleocr` (v3.0.0) depends on `paddlex` (v3.0.0) which depends on `pandas`
+PS C:\Users\alexa\c\Memory\screen-recorder> uv init
+PS C:\Users\alexa\c\Memory\screen-recorder> uv pip install -r requirements.txt
+PS C:\Users\alexa\c\Memory\screen-recorder>
+
+
+

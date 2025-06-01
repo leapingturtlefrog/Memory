@@ -2,6 +2,7 @@ aiohttp
 aiortc
 mss
 pillow
-google-genai
+google-generativeai
 python-dotenv
 loguru
+flask
