@@ -1,2 +1,7 @@
 aiohttp
 aiortc
+mss
+pillow
+google-genai
+python-dotenv
+loguru
