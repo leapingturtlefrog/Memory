@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Activity Assistant</title>
+    <!-- Add marked.js for markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Add highlight.js for code syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -160,6 +165,116 @@
         .message-text {
             line-height: 1.6;
             word-wrap: break-word;
+        }
+
+        /* Markdown styling for AI responses */
+        .message.ai .message-text h1,
+        .message.ai .message-text h2,
+        .message.ai .message-text h3,
+        .message.ai .message-text h4,
+        .message.ai .message-text h5,
+        .message.ai .message-text h6 {
+            margin: 16px 0 8px 0;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .message.ai .message-text h1 {
+            font-size: 1.5em;
+        }
+
+        .message.ai .message-text h2 {
+            font-size: 1.3em;
+        }
+
+        .message.ai .message-text h3 {
+            font-size: 1.1em;
+        }
+
+        .message.ai .message-text p {
+            margin: 8px 0;
+        }
+
+        .message.ai .message-text ul,
+        .message.ai .message-text ol {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+
+        .message.ai .message-text li {
+            margin: 4px 0;
+        }
+
+        .message.ai .message-text code {
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9em;
+            color: #d63384;
+        }
+
+        .message.ai .message-text pre {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 12px 0;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9em;
+        }
+
+        .message.ai .message-text pre code {
+            background: none;
+            padding: 0;
+            border-radius: 0;
+            color: inherit;
+        }
+
+        .message.ai .message-text blockquote {
+            border-left: 4px solid #4f46e5;
+            margin: 12px 0;
+            padding: 8px 16px;
+            background: #f8f9ff;
+            font-style: italic;
+        }
+
+        .message.ai .message-text strong {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .message.ai .message-text em {
+            font-style: italic;
+        }
+
+        .message.ai .message-text a {
+            color: #4f46e5;
+            text-decoration: none;
+        }
+
+        .message.ai .message-text a:hover {
+            text-decoration: underline;
+        }
+
+        .message.ai .message-text table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 12px 0;
+            font-size: 0.9em;
+        }
+
+        .message.ai .message-text th,
+        .message.ai .message-text td {
+            border: 1px solid #e5e7eb;
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        .message.ai .message-text th {
+            background: #f9fafb;
+            font-weight: 600;
         }
 
         .message-time {
@@ -426,6 +541,20 @@
     <script>
         let contextData = null;
 
+        // Configure marked.js for markdown parsing
+        marked.setOptions({
+            highlight: function (code, language) {
+                if (language && hljs.getLanguage(language)) {
+                    try {
+                        return hljs.highlight(code, { language: language }).value;
+                    } catch (err) { }
+                }
+                return hljs.highlightAuto(code).value;
+            },
+            breaks: true,
+            gfm: true
+        });
+
         // Load context information on page load
         fetch('/context')
             .then(response => response.json())
@@ -463,15 +592,33 @@
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isUser ? 'user' : 'ai'}`;
 
+            // For user messages, just replace newlines with <br>
+            // For AI messages, parse markdown
+            let formattedText;
+            if (isUser) {
+                formattedText = text.replace(/\n/g, '<br>');
+            } else {
+                // Parse markdown for AI responses
+                formattedText = marked.parse(text);
+            }
+
             messageDiv.innerHTML = `
                 <div class="message-avatar">${isUser ? '👤' : '🤖'}</div>
                 <div class="message-content">
-                    <div class="message-text">${text.replace(/\n/g, '<br>')}</div>
+                    <div class="message-text">${formattedText}</div>
                     <div class="message-time">${formatTime(timestamp)}</div>
                 </div>
             `;
 
             messagesContainer.appendChild(messageDiv);
+
+            // Highlight code blocks if they exist
+            if (!isUser) {
+                messageDiv.querySelectorAll('pre code').forEach((block) => {
+                    hljs.highlightElement(block);
+                });
+            }
+
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
@@ -517,7 +664,7 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    // Add AI response
+                    // Add AI response with markdown parsing
                     addMessage(data.response, false, data.timestamp);
                 } else {
                     addMessage(`Error: ${data.error || 'Something went wrong'}`, false);
