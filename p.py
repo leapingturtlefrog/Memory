@@ -35,39 +35,84 @@ class ActivityChatBot:
         self.setup_routes()
     
     def find_most_recent_description(self):
-        """Find the most recent description file based on trailing number"""
+        """Find the most recent description file based on trailing timestamp"""
         descriptions_dir = "gemini_descriptions"
         if not os.path.exists(descriptions_dir):
             raise FileNotFoundError(f"Directory {descriptions_dir} not found")
         
         # Get all description files
-        files = [f for f in os.listdir(descriptions_dir) if f.startswith("descriptions_") and f.endswith(".md")]
+        all_files = os.listdir(descriptions_dir)
+        print(f"Found {len(all_files)} total files in {descriptions_dir}")
+        
+        # Filter for description files
+        files = [f for f in all_files if f.startswith("descriptions_") and f.endswith(".md")]
+        print(f"Found {len(files)} description files: {files}")
         
         if not files:
             raise FileNotFoundError("No description files found")
         
         # Extract timestamps and find the most recent
         def extract_timestamp(filename):
-            # Extract timestamp from filename like descriptions_20250531_194855.md
+            # Extract timestamp from filename like descriptions_20250531_201602.md
+            # Format: descriptions_YYYYMMDD_HHMMSS.md
             match = re.search(r'descriptions_(\d{8}_\d{6})\.md', filename)
             if match:
-                return match.group(1)
-            return "00000000_000000"
+                timestamp = match.group(1)
+                print(f"Extracted timestamp '{timestamp}' from file '{filename}'")
+                return timestamp
+            else:
+                print(f"WARNING: Could not extract timestamp from file '{filename}'")
+                return "00000000_000000"
+        
+        # Create list of (filename, timestamp) tuples for debugging
+        file_timestamps = [(f, extract_timestamp(f)) for f in files]
+        print("File timestamps:")
+        for filename, timestamp in file_timestamps:
+            print(f"  {filename} -> {timestamp}")
         
         # Sort by timestamp (most recent first)
         files.sort(key=extract_timestamp, reverse=True)
         
-        return os.path.join(descriptions_dir, files[0])
+        most_recent = files[0]
+        most_recent_timestamp = extract_timestamp(most_recent)
+        
+        print(f"Selected most recent file: {most_recent} (timestamp: {most_recent_timestamp})")
+        
+        # Parse and display the timestamp in a readable format
+        try:
+            # Parse timestamp: YYYYMMDD_HHMMSS
+            date_part = most_recent_timestamp[:8]  # YYYYMMDD
+            time_part = most_recent_timestamp[9:]  # HHMMSS
+            
+            year = date_part[:4]
+            month = date_part[4:6]
+            day = date_part[6:8]
+            hour = time_part[:2]
+            minute = time_part[2:4]
+            second = time_part[4:6]
+            
+            readable_time = f"{year}-{month}-{day} {hour}:{minute}:{second}"
+            print(f"Most recent file timestamp: {readable_time}")
+            
+        except Exception as e:
+            print(f"Error parsing timestamp: {e}")
+        
+        return os.path.join(descriptions_dir, most_recent)
     
     def load_most_recent_description(self):
         """Load the content of the most recent description file"""
         try:
             filepath = self.find_most_recent_description()
             
+            # Check file size
+            file_size = os.path.getsize(filepath)
+            print(f"Loading file: {filepath}")
+            print(f"File size: {file_size:,} bytes")
+            
             with open(filepath, 'r', encoding='utf-8') as f:
                 content = f.read()
             
-            print(f"Loaded description from: {filepath}")
+            print(f"Successfully loaded {len(content):,} characters from: {os.path.basename(filepath)}")
             return content
             
         except Exception as e:
@@ -134,8 +179,29 @@ Provide a helpful, detailed response based on the available context.
             filepath = self.find_most_recent_description()
             lines = self.context.split('\n')
             
+            # Extract timestamp from filename for display
+            filename = os.path.basename(filepath)
+            timestamp_match = re.search(r'descriptions_(\d{8}_\d{6})\.md', filename)
+            readable_timestamp = "Unknown"
+            
+            if timestamp_match:
+                timestamp = timestamp_match.group(1)
+                try:
+                    date_part = timestamp[:8]
+                    time_part = timestamp[9:]
+                    year = date_part[:4]
+                    month = date_part[4:6]
+                    day = date_part[6:8]
+                    hour = time_part[:2]
+                    minute = time_part[2:4]
+                    second = time_part[4:6]
+                    readable_timestamp = f"{year}-{month}-{day} {hour}:{minute}:{second}"
+                except:
+                    pass
+            
             return jsonify({
-                'file': os.path.basename(filepath),
+                'file': filename,
+                'timestamp': readable_timestamp,
                 'lines': len(lines),
                 'characters': len(self.context),
                 'preview': self.context[:500] + "..." if len(self.context) > 500 else self.context
@@ -144,7 +210,7 @@ Provide a helpful, detailed response based on the available context.
     def run(self, debug=True, port=5000):
         """Run the Flask app"""
         print(f"Starting Activity Chat Bot...")
-        print(f"Context loaded: {len(self.context)} characters")
+        print(f"Context loaded: {len(self.context):,} characters")
         print(f"Server starting on http://localhost:{port}")
         self.app.run(debug=debug, port=port)
 

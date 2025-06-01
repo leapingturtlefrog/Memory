@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Activity Assistant</title>
+    <title>StreamScreen</title>
     <!-- Add marked.js for markdown parsing -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <!-- Add highlight.js for code syntax highlighting -->
@@ -479,7 +479,7 @@
 <body>
     <div class="chat-container">
         <div class="chat-header">
-            <h1>🤖 AI Activity Assistant</h1>
+            <h1>StreamScreen</h1>
             <p>Ask me anything about your screen activity and computer usage</p>
             <div class="context-info" onclick="showContextModal()">
                 📄 Context Loaded
@@ -685,6 +685,7 @@
             if (contextData) {
                 details.innerHTML = `
                     <p><strong>File:</strong> ${contextData.file}</p>
+                    <p><strong>Timestamp:</strong> ${contextData.timestamp}</p>
                     <p><strong>Lines:</strong> ${contextData.lines.toLocaleString()}</p>
                     <p><strong>Characters:</strong> ${contextData.characters.toLocaleString()}</p>
                     <p><strong>Preview:</strong></p>
